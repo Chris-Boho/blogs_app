@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { FormData } from "../types/blogTypes";
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function FormNewPost() {
 	const [formData, setFormData] = useState<FormData>({
@@ -8,6 +11,8 @@ export default function FormNewPost() {
 		content: "",
 	});
 
+	const { data } = useSession();
+	const router = useRouter();
 	function handleChange(
 		event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) {
@@ -17,9 +22,16 @@ export default function FormNewPost() {
 			[event.target.name]: event.target.value,
 		});
 	}
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		console.log(formData);
+		try {
+			const response = await axios.post("/api/posts", formData);
+			if (response.status === 200) {
+				router.push(`/blogs/${response.data.newPost.id}`);
+			}
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	return (

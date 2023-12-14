@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export function Header() {
+export async function Header() {
+	const session = await getServerSession(authOptions);
 	return (
 		<header className="bg-blue-600 p-4">
 			<nav className="flex justify-between items-center max-w-4xl mx-auto">
@@ -24,6 +27,17 @@ export function Header() {
 						>
 							login
 						</Link>
+					</li>
+					<li>
+						{session?.user ? (
+							<img
+								src={session.user.image!}
+								alt="Profile Image"
+								className="w-10 h-10 rounded-full bg-gray-300"
+							/>
+						) : (
+							<div className="w-10 h-10 rounded-full bg-gray-300"></div>
+						)}
 					</li>
 				</ul>
 			</nav>
