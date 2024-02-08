@@ -1,17 +1,38 @@
 "use client";
 
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-export default function FormComment() {
+type FormCommentProp = {
+	postId: string;
+};
+
+export default function FormComment({ postId }: FormCommentProp) {
 	const [comment, setComment] = useState<string>("");
+	const router = useRouter();
+	const { data } = useSession();
+	// console.log("postID", postId);
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-		event.preventDefault();
 		setComment(event.target.value);
 	}
-	function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
-		event.preventDefault();
-		console.log(comment);
+	async function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
+		if (comment.trim() != "") {
+			try {
+				const newComment = await axios.post("/api/comments", {
+					postId,
+					text: comment,
+				});
+				if (newComment.status === 200) {
+					router.refresh();
+					setComment("");
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		}
 	}
 
 	return (
@@ -31,7 +52,11 @@ export default function FormComment() {
 					value={comment}
 					onChange={handleChange}
 				/>
-				<button className="btn btn-info mt-4" onClick={handleSubmit}>
+				<button
+					className="btn btn-info mt-4"
+					onClick={handleSubmit}
+					disabled={!data?.user?.email}
+				>
 					Submit Comment
 				</button>
 			</div>

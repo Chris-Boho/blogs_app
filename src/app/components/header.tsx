@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/session";
+import Logout from "./logout";
 
 export async function Header() {
-	const session = await getServerSession(authOptions);
+	const user = await getCurrentUser();
 	return (
 		<header className="bg-blue-600 p-4">
 			<nav className="flex justify-between items-center max-w-4xl mx-auto">
@@ -11,7 +11,7 @@ export async function Header() {
 					My Blog
 				</Link>
 
-				<ul className="flex space-x-4">
+				<ul className="flex space-x-4 items-center">
 					<li>
 						<Link
 							href="/blogs"
@@ -20,18 +20,22 @@ export async function Header() {
 							Blogs
 						</Link>
 					</li>
+					{user?.name ? (
+						<Logout />
+					) : (
+						<li>
+							<Link
+								href="/api/auth/signin"
+								className="text-white hover:underline"
+							>
+								Login
+							</Link>
+						</li>
+					)}
 					<li>
-						<Link
-							href="/api/auth/signin"
-							className="text-white hover:underline"
-						>
-							login
-						</Link>
-					</li>
-					<li>
-						{session?.user ? (
+						{user ? (
 							<img
-								src={session.user.image!}
+								src={user.image!}
 								alt="Profile Image"
 								className="w-10 h-10 rounded-full bg-gray-300"
 							/>

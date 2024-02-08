@@ -59,7 +59,11 @@ export default function FormNewPost() {
 					onChange={handleChange}
 				/>
 			</div>
-			<button type="submit" className="btn btn-primary w-full">
+			<button
+				type="submit"
+				className="btn btn-primary w-full"
+				disabled={!data?.user?.email}
+			>
 				Submit
 			</button>
 		</form>
